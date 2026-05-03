@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Terimleri - Yapay Zeka Sözlüğü</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',sans-serif; background:#f0f4f8; color:#1a202c; }
+
+  /* NAVBAR */
+  nav { background:linear-gradient(135deg,#1a1a2e,#16213e); padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:64px; position:sticky; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.3); }
+  .logo { color:#fff; font-size:1.4rem; font-weight:700; text-decoration:none; }
+  .logo span { color:#6c63ff; }
+  .nav-links a { color:#ccc; text-decoration:none; margin-left:1.5rem; font-size:0.9rem; transition:color 0.2s; }
+  .nav-links a:hover { color:#6c63ff; }
+
+  /* HERO */
+  .hero { background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%); color:#fff; text-align:center; padding:3rem 1rem 2rem; }
+  .hero h1 { font-size:2.2rem; margin-bottom:0.5rem; }
+  .hero h1 span { color:#6c63ff; }
+  .hero p { color:#a0aec0; margin-bottom:1.5rem; }
+
+  /* SEARCH */
+  .search-box { max-width:600px; margin:0 auto; position:relative; }
+  .search-box input { width:100%; padding:1rem 1.5rem; border-radius:50px; border:none; font-size:1rem; outline:none; box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+  .search-box button { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:#6c63ff; color:#fff; border:none; padding:0.6rem 1.2rem; border-radius:50px; cursor:pointer; font-size:0.9rem; }
+  .search-box button:hover { background:#5a52d5; }
+
+  /* STATS */
+  .stats { display:flex; justify-content:center; gap:2rem; padding:1.5rem; background:#fff; border-bottom:1px solid #e2e8f0; flex-wrap:wrap; }
+  .stat { text-align:center; }
+  .stat-num { font-size:1.8rem; font-weight:700; color:#6c63ff; }
+  .stat-label { font-size:0.8rem; color:#718096; }
+
+  /* MAIN LAYOUT */
+  .container { max-width:1200px; margin:0 auto; padding:1.5rem; display:grid; grid-template-columns:260px 1fr; gap:1.5rem; }
+  @media(max-width:768px){ .container{ grid-template-columns:1fr; } .sidebar{ order:-1; } }
+
+  /* SIDEBAR */
+  .sidebar { display:flex; flex-direction:column; gap:1rem; }
+  .sidebar-card { background:#fff; border-radius:12px; padding:1.2rem; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .sidebar-card h3 { font-size:0.95rem; color:#4a5568; margin-bottom:0.8rem; border-bottom:2px solid #6c63ff; padding-bottom:0.4rem; }
+
+  /* CATEGORY FILTER */
+  .cat-list { display:flex; flex-direction:column; gap:0.3rem; max-height:300px; overflow-y:auto; }
+  .cat-btn { background:none; border:1px solid #e2e8f0; border-radius:8px; padding:0.4rem 0.8rem; text-align:left; cursor:pointer; font-size:0.82rem; color:#4a5568; transition:all 0.2s; }
+  .cat-btn:hover, .cat-btn.active { background:#6c63ff; color:#fff; border-color:#6c63ff; }
+
+  /* ALPHABET */
+  .alpha-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; }
+  .alpha-btn { background:#f7fafc; border:1px solid #e2e8f0; border-radius:6px; padding:0.3rem; text-align:center; cursor:pointer; font-size:0.8rem; font-weight:600; color:#4a5568; transition:all 0.2s; }
+  .alpha-btn:hover, .alpha-btn.active { background:#6c63ff; color:#fff; border-color:#6c63ff; }
+
+  /* MAIN CONTENT */
+  .main-content { display:flex; flex-direction:column; gap:1rem; }
+  .results-header { display:flex; justify-content:space-between; align-items:center; }
+  .results-count { font-size:0.9rem; color:#718096; }
+  .sort-select { border:1px solid #e2e8f0; border-radius:8px; padding:0.4rem 0.8rem; font-size:0.85rem; color:#4a5568; cursor:pointer; }
+
+  /* TERM CARDS */
+  .terms-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
+  .term-card { background:#fff; border-radius:12px; padding:1.2rem; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-left:4px solid #6c63ff; transition:transform 0.2s,box-shadow 0.2s; cursor:pointer; }
+  .term-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(108,99,255,0.15); }
+  .term-name { font-size:1.05rem; font-weight:700; color:#1a202c; margin-bottom:0.3rem; }
+  .term-en { font-size:0.8rem; color:#6c63ff; margin-bottom:0.5rem; font-style:italic; }
+  .term-cat { display:inline-block; background:#eef2ff; color:#6c63ff; font-size:0.72rem; padding:0.2rem 0.6rem; border-radius:20px; margin-bottom:0.5rem; }
+  .term-desc { font-size:0.85rem; color:#4a5568; line-height:1.5; }
+
+  /* MODAL */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:#fff; border-radius:16px; padding:2rem; max-width:500px; width:90%; position:relative; }
+  .modal-close { position:absolute; top:1rem; right:1rem; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#718096; }
+  .modal h2 { font-size:1.5rem; color:#1a202c; margin-bottom:0.3rem; }
+  .modal .modal-en { color:#6c63ff; font-style:italic; margin-bottom:0.8rem; }
+  .modal .modal-cat { display:inline-block; background:#eef2ff; color:#6c63ff; font-size:0.8rem; padding:0.3rem 0.8rem; border-radius:20px; margin-bottom:1rem; }
+  .modal .modal-desc { color:#4a5568; line-height:1.7; font-size:0.95rem; }
+
+  /* PAGINATION */
+  .pagination { display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap; }
+  .page-btn { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:0.5rem 0.9rem; cursor:pointer; font-size:0.85rem; color:#4a5568; transition:all 0.2s; }
+  .page-btn:hover, .page-btn.active { background:#6c63ff; color:#fff; border-color:#6c63ff; }
+
+  /* NO RESULTS */
+  .no-results { text-align:center; padding:3rem; color:#718096; }
+  .no-results .icon { font-size:3rem; margin-bottom:1rem; }
+
+  /* FOOTER */
+  footer { background:#1a1a2e; color:#a0aec0; text-align:center; padding:1.5rem; margin-top:2rem; font-size:0.85rem; }
+  footer a { color:#6c63ff; text-decoration:none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">AI<span>Terimleri</span></a>
+  <div class="nav-links">
+    <a href="#" onclick="resetFilters()">Ana Sayfa</a>
+    <a href="#" onclick="showRandom()">Rastgele Terim</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Yapay Zeka <span>Sözlüğü</span></h1>
+  <p>Türkçe açıklamalarıyla 279 yapay zeka terimi</p>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Terim ara... (örn: algoritma, transformer)" oninput="doSearch()">
+    <button onclick="doSearch()">Ara</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num" id="totalCount">279</div><div class="stat-label">Toplam Terim</div></div>
+  <div class="stat"><div class="stat-num">23</div><div class="stat-label">Kategori</div></div>
+  <div class="stat"><div class="stat-num" id="filteredCount">279</div><div class="stat-label">Gösterilen</div></div>
+</div>
+
+<div class="container">
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h3>📂 Kategoriler</h3>
+      <div class="cat-list" id="catList"></div>
+    </div>
+    <div class="sidebar-card">
+      <h3>🔤 Alfabetik Arama</h3>
+      <div class="alpha-grid" id="alphaGrid"></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="results-header">
+      <span class="results-count" id="resultsText">279 terim listeleniyor</span>
+      <select class="sort-select" onchange="doSort(this.value)">
+        <option value="az">A → Z</option>
+        <option value="za">Z → A</option>
+        <option value="cat">Kategoriye Göre</option>
+      </select>
+    </div>
+    <div class="terms-grid" id="termsGrid"></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+    <h2 id="mName"></h2>
+    <div class="modal-en" id="mEn"></div>
+    <div class="modal-cat" id="mCat"></div>
+    <div class="modal-desc" id="mDesc"></div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2024 <a href="#">AITerimleri.com</a> — Yapay Zeka Türkçe Sözlüğü</p>
+</footer>
+
+<script>
+const TERMS_PER_PAGE = 24;
+let allTerms = [];
+let filtered = [];
+let currentPage = 1;
+let activeCategory = '';
+let activeLetter = '';
+let sortMode = 'az';
+
+// JSON verisini yükle
+async function loadData() {
+  try {
+    const res = await fetch('sozluk.json');
+    allTerms = await res.json();
+  } catch(e) {
+    // Fallback: inline veri (demo için ilk 10 terim)
+    allTerms = INLINE_DATA;
+  }
+  init();
+}
+
+function init() {
+  buildCategories();
+  buildAlphabet();
+  applyFilters();
+}
+
+function buildCategories() {
+  const cats = [...new Set(allTerms.map(t => t.kategori))].sort();
+  const el = document.getElementById('catList');
+  el.innerHTML = '<button class="cat-btn active" onclick="filterCat(\'\')">Tümü (' + allTerms.length + ')</button>';
+  cats.forEach(c => {
+    const count = allTerms.filter(t => t.kategori === c).length;
+    el.innerHTML += `<button class="cat-btn" onclick="filterCat('${c}')">${c} (${count})</button>`;
+  });
+}
+
+function buildAlphabet() {
+  const letters = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ'.split('');
+  const el = document.getElementById('alphaGrid');
+  el.innerHTML = letters.map(l =>
+    `<button class="alpha-btn" onclick="filterAlpha('${l}')">${l}</button>`
+  ).join('');
+}
+
+function filterCat(cat) {
+  activeCategory = cat;
+  activeLetter = '';
+  document.querySelectorAll('.alpha-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.startsWith(cat || 'Tümü'));
+  });
+  currentPage = 1;
+  applyFilters();
+}
+
+function filterAlpha(letter) {
+  activeLetter = activeLetter === letter ? '' : letter;
+  activeCategory = '';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cat-btn')[0].classList.add('active');
+  document.querySelectorAll('.alpha-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === activeLetter);
+  });
+  currentPage = 1;
+  applyFilters();
+}
+
+function doSearch() {
+  activeCategory = '';
+  activeLetter = '';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cat-btn')[0]?.classList.add('active');
+  document.querySelectorAll('.alpha-btn').forEach(b => b.classList.remove('active'));
+  currentPage = 1;
+  applyFilters();
+}
+
+function doSort(val) {
+  sortMode = val;
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  filtered = allTerms.filter(t => {
+    const matchSearch = !q || t.terim.toLowerCase().includes(q) || t.aciklama.toLowerCase().includes(q) || (t.ingilizce && t.ingilizce.toLowerCase().includes(q));
+    const matchCat = !activeCategory || t.kategori === activeCategory;
+    const matchAlpha = !activeLetter || t.terim.toUpperCase().startsWith(activeLetter);
+    return matchSearch && matchCat && matchAlpha;
+  });
+
+  if (sortMode === 'az') filtered.sort((a,b) => a.terim.localeCompare(b.terim, 'tr'));
+  else if (sortMode === 'za') filtered.sort((a,b) => b.terim.localeCompare(a.terim, 'tr'));
+  else filtered.sort((a,b) => a.kategori.localeCompare(b.kategori, 'tr') || a.terim.localeCompare(b.terim, 'tr'));
+
+  document.getElementById('filteredCount').textContent = filtered.length;
+  document.getElementById('resultsText').textContent = filtered.length + ' terim listeleniyor';
+  renderPage();
+  renderPagination();
+}
+
+function renderPage() {
+  const start = (currentPage - 1) * TERMS_PER_PAGE;
+  const page = filtered.slice(start, start + TERMS_PER_PAGE);
+  const grid = document.getElementById('termsGrid');
+
+  if (page.length === 0) {
+    grid.innerHTML = '<div class="no-results" style="grid-column:1/-1"><div class="icon">🔍</div><p>Sonuç bulunamadı</p></div>';
+    return;
+  }
+
+  grid.innerHTML = page.map(t => `
+    <div class="term-card" onclick="openModal(${t.id})">
+      <div class="term-name">${t.terim}</div>
+      <div class="term-en">${t.ingilizce || ''}</div>
+      <span class="term-cat">${t.kategori}</span>
+      <div class="term-desc">${t.aciklama}</div>
+    </div>
+  `).join('');
+}
+
+function renderPagination() {
+  const total = Math.ceil(filtered.length / TERMS_PER_PAGE);
+  const el = document.getElementById('pagination');
+  if (total <= 1) { el.innerHTML = ''; return; }
+  let html = '';
+  for (let i = 1; i <= total; i++) {
+    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  el.innerHTML = html;
+}
+
+function goPage(n) {
+  currentPage = n;
+  renderPage();
+  renderPagination();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openModal(id) {
+  const t = allTerms.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('mName').textContent = t.terim;
+  document.getElementById('mEn').textContent = t.ingilizce || '';
+  document.getElementById('mCat').textContent = t.kategori;
+  document.getElementById('mDesc').textContent = t.aciklama;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target.id === 'modal') document.getElementById('modal').classList.remove('open');
+}
+
+function showRandom() {
+  const t = allTerms[Math.floor(Math.random() * allTerms.length)];
+  openModal(t.id);
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  activeCategory = '';
+  activeLetter = '';
+  currentPage = 1;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cat-btn')[0]?.classList.add('active');
+  document.querySelectorAll('.alpha-btn').forEach(b => b.classList.remove('active'));
+  applyFilters();
+}
+
+// Inline fallback data (ilk 5 terim)
+const INLINE_DATA = [
+  {"id":1,"terim":"Algoritma","kategori":"Temel","aciklama":"Bir problemi çözmek için izlenen adım adım talimatlar dizisi.","ingilizce":"Algorithm"},
+  {"id":2,"terim":"Yapay Zeka","kategori":"Temel","aciklama":"İnsan zekasını taklit eden bilgisayar sistemleri.","ingilizce":"Artificial Intelligence"},
+  {"id":3,"terim":"Makine Öğrenmesi","kategori":"Temel","aciklama":"Veriden öğrenen algoritmaların geliştirilmesi.","ingilizce":"Machine Learning"},
+  {"id":4,"terim":"Derin Öğrenme","kategori":"Temel","aciklama":"Çok katmanlı sinir ağları kullanan makine öğrenmesi.","ingilizce":"Deep Learning"},
+  {"id":5,"terim":"Transformer","kategori":"Derin Öğrenme","aciklama":"Dikkat mekanizması kullanan dil modeli mimarisi.","ingilizce":"Transformer"}
+];
+
+loadData();
+</script>
+</body>
+</html>
